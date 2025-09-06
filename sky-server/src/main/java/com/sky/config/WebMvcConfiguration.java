@@ -72,7 +72,10 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
-
+    /**
+     * 扩展消息转换器，将String类型的json转换成对象
+     * @param converters
+     */
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters){
         log.info("扩展消息转换器...");
         // 创建消息转换器
