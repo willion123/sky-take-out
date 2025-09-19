@@ -4,6 +4,9 @@ import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
+import com.aliyun.oss.common.comm.Protocol;
+import com.aliyun.oss.ClientBuilderConfiguration;
+import com.aliyun.oss.model.ObjectMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +31,20 @@ public class AliOssUtil {
      */
     public String upload(byte[] bytes, String objectName) {
 
-        // 创建OSSClient实例。
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        // 创建ClientBuilderConfiguration实例，设置使用HTTPS协议
+        ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
+        clientBuilderConfiguration.setProtocol(Protocol.HTTPS);
+
+        // 创建OSSClient实例，强制使用HTTPS协议
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret, clientBuilderConfiguration);
 
         try {
-            // 创建PutObject请求。
-            ossClient.putObject(bucketName, objectName, new ByteArrayInputStream(bytes));
+            // 创建ObjectMetadata实例，设置内容长度
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(bytes.length);
+            
+            // 创建PutObject请求，显式指定内容长度。
+            ossClient.putObject(bucketName, objectName, new ByteArrayInputStream(bytes), metadata);
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
