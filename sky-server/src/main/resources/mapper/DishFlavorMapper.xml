@@ -13,4 +13,11 @@
             (#{dishFlavor.dishId},#{dishFlavor.name},#{dishFlavor.value})
         </foreach>
     </insert>
+    <delete id="deleteByDishIds">
+        delete from dish_flavor where dish_id in
+#     collection="dishIds"为id列表，item为id列表中的元素 separate为列表元素之间的分隔符 open="(" close=")"为列表的括号
+        <foreach collection="dishIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>
