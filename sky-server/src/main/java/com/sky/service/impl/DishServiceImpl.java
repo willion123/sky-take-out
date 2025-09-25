@@ -67,7 +67,7 @@ public class DishServiceImpl implements DishService {
         log.info("批量删除菜品：{}", ids);
         //是否可以删除--是否在起售中
         ids.forEach(id -> {
-            if(dishMapper.getDishId(id).getStatus() > 0){
+            if(dishMapper.getDishById(id).getStatus() > 0){
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         });
@@ -88,6 +88,31 @@ public class DishServiceImpl implements DishService {
         dishMapper.deleteBatch(ids);
         dishFlavorMapper.deleteByDishIds(ids);
 
-
     }
+
+    @Transactional
+    public DishVO getByIdWithFlavor(Long id) {
+        Dish Dish = dishMapper.getDishById(id);
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getDishFlavorsByDishId(id);
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(Dish, dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+
+
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if(flavors != null && !flavors.isEmpty()){
+            flavors.forEach(dishFlavor -> dishFlavor.setDishId(dishDTO.getId()));
+            dishFlavorMapper.insertBatch(flavors);
+        }
+    }
+
+
 }
