@@ -12,9 +12,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("admin/dish")
@@ -24,12 +26,18 @@ public class DishController {
 
     @Autowired
     DishService dishService;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @PostMapping
     @ApiOperation("新增菜品")
     public Result save(@RequestBody DishDTO dishDTO){
         log.info("新增菜品：{}", dishDTO);
+
         dishService.saveWithFlavor(dishDTO);
+
+        redisTemplate.delete("dish_" + dishDTO.getCategoryId());
+
         return Result.success();
     }
 
@@ -46,7 +54,9 @@ public class DishController {
     @ApiOperation("批量删除菜品")
     public Result<String> delete(@RequestParam("ids")List<Long> ids){
         log.info("批量删除菜品：{}", ids);
+
         dishService.deleteBatch(ids);
+
         return Result.success();
     }
     @GetMapping("/{id}")
@@ -62,6 +72,9 @@ public class DishController {
     public Result update(@RequestBody DishDTO dishDTO){
         log.info("修改菜品：{}", dishDTO);
         dishService.updateWithFlavor(dishDTO);
+
+        deleteCache();
+
         return Result.success();
     }
 
@@ -81,5 +94,29 @@ public class DishController {
         List<DishVO> list = dishService.listWithFlavor(dish);
 
         return Result.success(list);
+    }
+
+    @PostMapping("status/{status}")
+    @ApiOperation("起售、停售菜品")
+    public Result<String> StopOrStart(Long id){
+        log.info("起售、停售菜品:{}", id);
+        Dish dish = Dish.builder()
+                .id(id)
+                .build();
+        dishService.update(dish);
+
+       deleteCache();
+
+        return Result.success();
+    }
+
+    private void deleteCache(){
+        Set<String> keys = redisTemplate.keys("dish_*");
+        if (!keys.isEmpty()) {
+            log.info("删除Redis缓存键: {}", keys);
+            redisTemplate.delete(keys);
+        } else {
+            log.info("未找到匹配的Redis缓存键");
+        }
     }
 }

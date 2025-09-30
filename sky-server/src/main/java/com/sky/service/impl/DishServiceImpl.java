@@ -139,4 +139,18 @@ public class DishServiceImpl implements DishService {
         return dishVOList;
     }
 
+    /**
+     * 修改菜品状态
+     * @param dish
+     */
+    public void update(Dish dish) {
+        log.info("修改菜品状态：{}", dish);
+        Dish dishById = dishMapper.getDishById(dish.getId());
+        if(dishById.getStatus() == 1){
+            dishById.setStatus(0);
+        }else{
+            dishById.setStatus(1);
+        }
+        dishMapper.update(dishById);
+    }
 }
