@@ -25,7 +25,7 @@ import java.util.List;
 @RequestMapping("/user/user")
 @Api("用户模块")
 @Slf4j
-public class UserConfiguration {
+public class UserController {
 
     @Autowired
     private UserService userService;

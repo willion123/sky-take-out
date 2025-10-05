@@ -1,4 +1,4 @@
-package com.sky.controller.user;
+package com.sky.controller.admin;
 
 import com.sky.result.Result;
 import io.swagger.annotations.Api;
@@ -11,16 +11,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("userShopConfiguration")
-@RequestMapping("/user/shop")
+@RestController("adminShopConfiguration")
+@RequestMapping("/admin/shop")
 @Slf4j
 @Api(tags = "店铺相关接口")
-public class ShopConfiguration {
+public class ShopController {
 
     private static final String KEY = "SHOP_STATUS";
 
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
+    @ApiOperation("设置营业状态")
+    @RequestMapping("/{status}")
+    public Result setShopStatus(@PathVariable Integer status) {
+        log.info("设置店铺营业状态：{}", status == 1? "营业中" : "打烊中");
+        redisTemplate.opsForValue().set("KEY", status);
+        return Result.success();
+    }
 
     @ApiOperation("查询营业状态")
     @GetMapping("/status")
