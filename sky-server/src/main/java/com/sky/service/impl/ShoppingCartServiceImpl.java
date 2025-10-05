@@ -77,6 +77,8 @@ public class ShoppingCartServiceImpl  implements ShoppingCartService {
      * @return 购物车列表
      */
     public List<ShoppingCart> list() {
-        return shoppingCartMapper.list(new ShoppingCart());
+        Long currentId = BaseContext.getCurrentId();
+        ShoppingCart userId = ShoppingCart.builder().userId(currentId).build();
+        return shoppingCartMapper.list(userId);
     }
 }
