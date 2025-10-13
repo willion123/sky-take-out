@@ -36,4 +36,13 @@ public interface OrderMapper {
      */
     @Select("select * from orders where status = #{pendingPayment} and order_time < #{localDateTime}")
     List<Orders> getOrderTimeout(Integer pendingPayment, LocalDateTime localDateTime);
+
+    /**
+     * 根据id查询订单
+     *
+     * @param id
+     * @return
+     */
+    @Select("select * from orders where id = #{id}")
+    Orders getById(Long id);
 }
