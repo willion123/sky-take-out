@@ -2,8 +2,10 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.reportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class reportServiceImpl implements reportService {
 
     @Autowired
     OrderMapper orderMapper;
+
+    @Autowired
+    UserMapper userMapper;
 
     /**
      * 营业额统计
@@ -51,6 +56,42 @@ public class reportServiceImpl implements reportService {
                 .builder()
                 .dateList(dateList.stream().map(LocalDate::toString).collect(Collectors.joining(",")))
                 .turnoverList(turnoverList.stream().map(String::valueOf).collect(Collectors.joining(",")))
+                .build();
+    }
+
+    /**
+     * 用户统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+        List<LocalDate> dateList = new ArrayList<>();
+        while (!begin.isAfter(end)) {
+            dateList.add(begin);
+            begin = begin.plusDays(1);
+        }
+
+        List<Long> newUserList = new ArrayList<>();
+        List<Long> totalUserList = new ArrayList<>();
+
+        for (LocalDate date : dateList) {
+            newUserList.add((Long) userMapper.getUserSumByDateRange(
+                    LocalDateTime.of(date, LocalTime.MIN),
+                    LocalDateTime.of(date, LocalTime.MAX)
+            ));
+            totalUserList.add((Long) userMapper.getUserSumByDateRange(
+                    LocalDateTime.of(date, LocalTime.MIN),
+                    null
+            ));
+        }
+
+        return UserReportVO
+                .builder()
+                .dateList(dateList.stream().map(LocalDate::toString).collect(Collectors.joining(",")))
+                .totalUserList(totalUserList.stream().map(String::valueOf).collect(Collectors.joining(",")))
+                .newUserList(newUserList.stream().map(String::valueOf).collect(Collectors.joining(",")))
                 .build();
     }
 }
