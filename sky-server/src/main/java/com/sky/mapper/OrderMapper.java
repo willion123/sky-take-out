@@ -56,4 +56,12 @@ public interface OrderMapper {
      */
     @Select("select sum(amount) from orders where status = #{status} and order_time >= #{begin} and order_time <= #{end}")
     Double getTurnoverSumByDateRange(LocalDateTime begin, LocalDateTime end, Integer status);
+
+    /**
+     * 根据日期范围查询订单数量
+     * @param begin
+     * @param end
+     * @return
+     */
+    Integer getOrderCountByDateRange(LocalDateTime begin, LocalDateTime end , Integer status);
 }
