@@ -72,4 +72,34 @@
             ORDER BY number DESC
             LIMIT 10
     </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM orders
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="begin != null">
+                AND order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                AND order_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+    <select id="sumByMap" resultType="java.lang.Double">
+        select SUM(amount)
+        from orders
+        <where>
+            <if test="begin != null">
+                AND order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                AND order_time &lt;= #{end}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
 </mapper>
