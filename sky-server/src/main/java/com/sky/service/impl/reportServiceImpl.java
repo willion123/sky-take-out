@@ -1,10 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.reportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -140,4 +142,24 @@ public class reportServiceImpl implements reportService {
                 .build();
     }
 
+    /**
+     * 销量排名
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    public SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end) {
+
+        List<GoodsSalesDTO> salesTop10 = orderMapper.getSalesTop10(
+                LocalDateTime.of(begin, LocalTime.MIN),
+                LocalDateTime.of(end, LocalTime.MAX)
+        );
+
+        return SalesTop10ReportVO
+                .builder()
+                .nameList(salesTop10.stream().map(GoodsSalesDTO::getName).collect(Collectors.joining(",")))
+                .numberList(salesTop10.stream().map(GoodsSalesDTO::getNumber).map(String::valueOf).collect(Collectors.joining(",")))
+                .build();
+    }
 }
